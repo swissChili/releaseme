@@ -64,21 +64,25 @@ fi
 
 # create release
 echo "Creating release $releasename"
-curl -i -H "Authorization: token $GITHUB_TOKEN" \
+output=$(curl -i -H "Authorization: token $GITHUB_TOKEN" \
   --data '
   {
-    "tag_name": "$releasename",
+    "tag_name": "'$releasename'",
     "target_commitish": "master",
-    "name": "$releasename",
+    "name": "'$releasename'",
     "body": ""
   }  
-' -X POST "https://api.github.com/repos/$repo/releases/"
+' -X POST "https://api.github.com/repos/$repo/releases")
+
+echo RESULT IS
+id=$(echo "$output" | awk '/"id":/ { split($2, s, ","); print s[1]; exit 0 }')
+echo END RESULT
 
 if [ ! -z "$file" ]; then
   echo "Uploading file $file"
   # upload asset
-  curl -i -H "Authorization: token $GITHUB_TOKEN" \
-    -H "Content-Type: $mime" \
+  output=$(curl -i -H "Authorization: token $GITHUB_TOKEN" \
+    -H "Content-Type: $mimetype" \
     --data-binary "@$file" \
-    -X POST "https://uploads.github.com/repos/$repo/releases/$releasename/assets?name=$file"
+    -X POST "https://uploads.github.com/repos/$repo/releases/$id/assets?name=$file")
 fi
