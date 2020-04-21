@@ -74,9 +74,9 @@ output=$(curl -i -H "Authorization: token $GITHUB_TOKEN" \
   }  
 ' -X POST "https://api.github.com/repos/$repo/releases")
 
-echo RESULT IS
 id=$(echo "$output" | awk '/"id":/ { split($2, s, ","); print s[1]; exit 0 }')
-echo END RESULT
+echo Id is $id
+echo "$output"
 
 if [ ! -z "$file" ]; then
   echo "Uploading file $file"
@@ -85,4 +85,6 @@ if [ ! -z "$file" ]; then
     -H "Content-Type: $mimetype" \
     --data-binary "@$file" \
     -X POST "https://uploads.github.com/repos/$repo/releases/$id/assets?name=$file")
+
+  echo "$output"
 fi
